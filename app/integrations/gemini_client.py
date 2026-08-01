@@ -1,10 +1,10 @@
 import json
 import logging
 from google import genai
-import app.config
+from app.config import GEMINI_API_KEY
 import logging 
 
-_client = genai.Client()
+_client = genai.Client(api_key=GEMINI_API_KEY)
 
 logger =  logging.getLogger(__name__)
 
@@ -68,20 +68,3 @@ def generate_json(prompt:str)->dict:
 
 
 
-if __name__ == "__main__":
-    # Quick standalone test — run with: python -m app.integrations.gemini_client
-    logging.basicConfig(level=logging.INFO)
- 
-    print("--- Test 1: plain text generation ---")
-    text_result = generate_text("Write a direct reply to this review. Output only the final reply text and nothing else.Review=All Care Corporation theke amar bari-te CCTV camera installation korano hoyeche.Kaaj khub poripati, wiring clean ebong camera quality excellent.Time-to-time kaaj shesh koreche ebong behaviour khub bhalo.")
-    print(text_result)
- 
-    print("\n--- Test 2: structured JSON extraction ---")
-    extraction_prompt = (
-        "Extract the customer's name and neighborhood from this message, "
-        "and return as JSON with keys 'name','location','service_required'and 'date',if something is not present return none to that value:\n\n"
-        "\"Hi I'm Amit, I live near Garia and need a CCTV setup.\""
-    )
-    json_result = generate_json(extraction_prompt)
-    print(json_result)
-    print(f"Type check: {type(json_result)}")  # should be <class 'dict'>

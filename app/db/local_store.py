@@ -60,28 +60,29 @@ def insert_lead(lead: Lead):
 
     return lead.model_copy(update={'lead_id':new_id})
 
-def get_lead_by_phone(phone:str) -> Lead | None:
+def get_all_leads_by_phone(phone: str) -> list[Lead]:
     conn = get_connection()
     cursor = conn.cursor()
-
     cursor.execute("""
-        SELECT * FROM leads WHERE phone = ?""",(phone,))
-    row = cursor.fetchone()
+        SELECT * FROM leads WHERE phone = ? ORDER BY created_at DESC
+    """, (phone,))
+    rows = cursor.fetchall()
     conn.close()
 
-    if row is None:
-        return None
+    leads = []
+    for row in rows:
+        leads.append(Lead(
+            lead_id=row["lead_id"],
+            phone=row["phone"],
+            name=row["name"],
+            category=row["category"],
+            requirement=row["requirement"],
+            location=row["location"],
+            status=row["status"],
+            created_at=datetime.fromisoformat(row["created_at"]),
+        ))
+    return leads
     
-    return Lead(
-        phone = row['phone'],
-        name = row['name'],
-        category = row['category'],
-        requirement = row['requirement'],
-        location = row['location'],
-        status = row['status'],
-        created_at =datetime.fromisoformat(row['created_at'])
-        )
-
 def update_lead_status(lead_id:int,new_status :LeadStatus):
     conn = get_connection()
     cursor = conn.cursor()
@@ -147,4 +148,3 @@ def has_processed_message(message_id: str)->bool:
     return row is not None
 
 
-create_tables()

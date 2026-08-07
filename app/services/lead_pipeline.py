@@ -1,13 +1,22 @@
-from app.db.local_store import has_processed_message,mark_message_processed,get_lead_by_phone,insert_lead,update_lead_status,create_tables
+from app.db.local_store import has_processed_message,mark_message_processed,get_all_leads_by_phone,insert_lead,update_lead_status,create_tables
 from app.integrations.gemini_client import generate_json,generate_text
 from app.models.schemas import Lead,LeadStatus
 from app.integrations.whatsapp_client import send_text_message
 from app.config import SALES_TEAM_NUMBER
+
+def get_active_lead(phone: str) -> Lead | None:
+    all_leads = get_all_leads_by_phone(phone)
+    for lead in all_leads:
+        if lead.status != LeadStatus.CLOSED:
+            return lead
+    return None
+
+
 def handle_incoming_message(phone: str, message_text: str , message_id : str):
     if has_processed_message(message_id):
         return 
     mark_message_processed(message_id)
-    existing_lead = get_lead_by_phone(phone)
+    existing_lead = get_active_lead(phone)
 
     if existing_lead is None:
         extraction_prompt = (
@@ -62,29 +71,31 @@ def handle_incoming_message(phone: str, message_text: str , message_id : str):
 
 
 if __name__ == "__main__":
-    create_tables()
-    print("=== Test 1: clear requirement — should create a lead ===")
-    handle_incoming_message(
-        phone="911111111111",
-        message_text="Hi, I'm Ayan, I need a CCTV installation near Baguiati for my basement.",
-        message_id="wamid.TEST001"
-    )
+    result = get_all_leads_by_phone("911111111111")
+    print(result)
+#     create_tables()
+#     print("=== Test 1: clear requirement — should create a lead ===")
+#     handle_incoming_message(
+#         phone="911111111111",
+#         message_text="Hi, I'm Ayan, I need a CCTV installation near Baguiati for my basement.",
+#         message_id="wamid.TEST001"
+#     )
 
-    print("\n=== Test 2: vague message — should NOT create a lead, just reply ===")
-    handle_incoming_message(
-        phone="922222222222",
-        message_text="Hi",
-        message_id="wamid.TEST002"
-    )
-    # confirm no lead was created for this number
-    from app.db.local_store import get_lead_by_phone
-    result = get_lead_by_phone("922222222222")
-    print(f"Lead created for vague message? {result is not None} (should be False)")
+#     print("\n=== Test 2: vague message — should NOT create a lead, just reply ===")
+#     handle_incoming_message(
+#         phone="922222222222",
+#         message_text="Hi",
+#         message_id="wamid.TEST002"
+#     )
+#     # confirm no lead was created for this number
+#     from app.db.local_store import get_lead_by_phone
+#     result = get_lead_by_phone("922222222222")
+#     print(f"Lead created for vague message? {result is not None} (should be False)")
 
-    print("\n=== Test 3: duplicate message ID — should do nothing at all ===")
-    handle_incoming_message(
-        phone="911111111111",
-        message_text="Hi, I'm Ayan, I need a CCTV installation near Baguiati for my basement.",
-        message_id="wamid.TEST003"  # same ID as Test 1
-    )
-    print("(nothing above this line should have printed for Test 3)")
+#     print("\n=== Test 3: duplicate message ID — should do nothing at all ===")
+#     handle_incoming_message(
+#         phone="911111111111",
+#         message_text="Hi, I'm Ayan, I need a CCTV installation near Baguiati for my basement.",
+#         message_id="wamid.TEST00"  # same ID as Test 1
+#     )
+#     print("(nothing above this line should have printed for Test 3)")

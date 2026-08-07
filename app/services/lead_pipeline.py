@@ -91,6 +91,9 @@ def handle_incoming_message(phone: str, message_text: str , message_id : str):
 
 
 def handle_sales_reply(sender_phone: str,message_text:str,message_id:str):
+
+    """IT ASSIGNS A HUMAN TO A LEAD WHEN CALLED WHILE A SALES PERSON MESSAGES
+    WITH "TAKEN 91XXXXXXXX" """
     if has_processed_message(message_id):
         return
     mark_message_processed(message_id)
@@ -122,52 +125,52 @@ def handle_sales_reply(sender_phone: str,message_text:str,message_id:str):
 
 
 
-if __name__ == "__main__":
-    create_tables()
+# if __name__ == "__main__":
+#     create_tables()
 
-    print("=== Setup: create an active lead to assign ===")
-    handle_incoming_message(
-        phone="944444444444",
-        message_text="Hi, I'm Sneha, I need deep cleaning for my 3BHK in New Town.",
-        message_id="wamid.TESTS001"
-    )
+#     print("=== Setup: create an active lead to assign ===")
+#     handle_incoming_message(
+#         phone="944444444444",
+#         message_text="Hi, I'm Sneha, I need deep cleaning for my 3BHK in New Town.",
+#         message_id="wamid.TESTS001"
+#     )
 
-    print("\n=== Test A: sales replies TAKEN <valid phone> — should assign to human ===")
-    handle_sales_reply(
-        sender_phone="919000000000",  # sales team's own number
-        message_text="TAKEN 944444444444",
-        message_id="wamid.TESTS002"
-    )
-    active = get_active_lead("944444444444")
-    print(f"Lead status after assignment: {active.status} (should be human_assigned)")
-    assert active.status == LeadStatus.HUMAN_ASSIGNED
-    print("PASSED\n")
+#     print("\n=== Test A: sales replies TAKEN <valid phone> — should assign to human ===")
+#     handle_sales_reply(
+#         sender_phone="919000000000",  # sales team's own number
+#         message_text="TAKEN 944444444444",
+#         message_id="wamid.TESTS002"
+#     )
+#     active = get_active_lead("944444444444")
+#     print(f"Lead status after assignment: {active.status} (should be human_assigned)")
+#     assert active.status == LeadStatus.HUMAN_ASSIGNED
+#     print("PASSED\n")
 
-    print("=== Test B: sales replies TAKEN <phone with no active lead> — should not crash ===")
-    handle_sales_reply(
-        sender_phone="919000000000",
-        message_text="TAKEN 999999999999",
-        message_id="wamid.TESTS003"
-    )
-    print("PASSED (no crash, printed 'no active lead' message above)\n")
+#     print("=== Test B: sales replies TAKEN <phone with no active lead> — should not crash ===")
+#     handle_sales_reply(
+#         sender_phone="919000000000",
+#         message_text="TAKEN 999999999999",
+#         message_id="wamid.TESTS003"
+#     )
+#     print("PASSED (no crash, printed 'no active lead' message above)\n")
 
-    print("=== Test C: sales replies just TAKEN with nothing after it — should not crash ===")
-    handle_sales_reply(
-        sender_phone="919000000000",
-        message_text="TAKEN",
-        message_id="wamid.TESTS004"
-    )
-    print("PASSED (no crash, nothing printed above)\n")
+#     print("=== Test C: sales replies just TAKEN with nothing after it — should not crash ===")
+#     handle_sales_reply(
+#         sender_phone="919000000000",
+#         message_text="TAKEN",
+#         message_id="wamid.TESTS004"
+#     )
+#     print("PASSED (no crash, nothing printed above)\n")
 
-    print("=== Test D: customer messages after HUMAN_ASSIGNED — bot should stay silent ===")
-    handle_incoming_message(
-        phone="944444444444",
-        message_text="Hello? Anyone there?",
-        message_id="wamid.TESTS005"
-    )
-    print("(nothing above this line should have printed for Test D)\n")
+#     print("=== Test D: customer messages after HUMAN_ASSIGNED — bot should stay silent ===")
+#     handle_incoming_message(
+#         phone="944444444444",
+#         message_text="Hello? Anyone there?",
+#         message_id="wamid.TESTS005"
+#     )
+#     print("(nothing above this line should have printed for Test D)\n")
 
-    print("All handle_sales_reply tests passed.")
+#     print("All handle_sales_reply tests passed.")
 
 
 

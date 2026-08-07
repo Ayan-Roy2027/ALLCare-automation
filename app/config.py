@@ -9,15 +9,17 @@ WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
 WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
 WHATSAPP_BUSINESS_ACCOUNT_ID = os.getenv("WHATSAPP_BUSINESS_ACCOUNT_ID")
 RECIPIENT_NUMBER = os.getenv("TEST_RECIPIENT_NUMBER")
-
+SALES_TEAM_NUMBER = os.getenv('SALES_TEAM_NUMBER')
 if not GEMINI_API_KEY or GEMINI_API_KEY == 'your api key here':
     raise RuntimeError("There is no gemini api key given....")
 
 if not WHATSAPP_TOKEN:
     raise RuntimeError("Error, no whatsapp token is given....")
 if not WHATSAPP_BUSINESS_ACCOUNT_ID:
-    raise RuntimeError("Error, no whatsapp business account id")
+    raise RuntimeError("Error, no whatsapp business account id....")
 if not RECIPIENT_NUMBER:
     raise RuntimeError('Error, no recipient number given....')
 if not WHATSAPP_PHONE_NUMBER_ID:
     raise ValueError("Error, whatsapp phone number ID is not given...")
+if not SALES_TEAM_NUMBER:
+    raise ValueError("Error, no sales team number detected....")

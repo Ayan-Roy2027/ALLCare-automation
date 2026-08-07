@@ -16,7 +16,8 @@ def create_tables():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS leads(
-        phone TEXT PRIMARY KEY,
+        lead_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        phone TEXT NOT NULL,
         name TEXT,
         category TEXT,
         requirement TEXT,
@@ -52,10 +53,12 @@ def insert_lead(lead: Lead):
         VALUES(?,?,?,?,?,?,?)""",
         (lead.phone,lead.name,lead.category,lead.requirement,lead.location,lead.status.value,lead.created_at.isoformat()
         ))
-
+    
+    new_id = cursor.lastrowid
     conn.commit()
     conn.close()
 
+    return lead.model_copy(update={'lead_id':new_id})
 
 def get_lead_by_phone(phone:str) -> Lead | None:
     conn = get_connection()
@@ -79,10 +82,10 @@ def get_lead_by_phone(phone:str) -> Lead | None:
         created_at =datetime.fromisoformat(row['created_at'])
         )
 
-def update_lead_status(phone:str,new_status :LeadStatus):
+def update_lead_status(lead_id:int,new_status :LeadStatus):
     conn = get_connection()
     cursor = conn.cursor()
-    cursor.execute("""UPDATE leads SET STATUS = ? WHERE PHONE = ?""",(new_status.value,phone))
+    cursor.execute("""UPDATE leads SET STATUS = ? WHERE lead_id = ?""",(new_status.value,lead_id))
     conn.commit()
     conn.close()
 
@@ -143,9 +146,5 @@ def has_processed_message(message_id: str)->bool:
 
     return row is not None
 
-print("--- Test 5: processed message ID tracking ---")
+
 create_tables()
-assert has_processed_message("wamid.TEST123") == False
-mark_message_processed("wamid.TEST123")
-assert has_processed_message("wamid.TEST123") == True
-print("PASSED\n")

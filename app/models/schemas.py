@@ -16,6 +16,7 @@ class OptInStatus(str,Enum):
     OPTED_OUT = 'opted_out'
 
 class Lead(BaseModel):
+    lead_id : Optional[str] = None
     phone : str
     name : Optional[str] = None
     category : Optional[str] = None

@@ -65,37 +65,141 @@ def handle_incoming_message(phone: str, message_text: str , message_id : str):
         print(welcome_message)
         update_lead_status(lead_id=new_lead.lead_id,new_status=LeadStatus.BOT_ENGAGED)
     else:
-        pass
+        if existing_lead.status == LeadStatus.HUMAN_ASSIGNED:
+            return
+        
+        if existing_lead.status == LeadStatus.BOT_ENGAGED:
+            ongoing_reply_prompt = (
+        "You are a friendly sales assistant for Allcare Corporation, an IT infrastructure "
+        "and electronic security provider in Kolkata (CCTV, biometrics, automation, IT support, "
+        "deep cleaning). You're in an ongoing WhatsApp conversation with a customer who already "
+        "reached out about the following:\n"
+        f"- Category: {existing_lead.category or 'not specified'}\n"
+        f"- Requirement: {existing_lead.requirement or 'not specified'}\n"
+        f"- Location: {existing_lead.location or 'not specified'}\n\n"
+        "Our sales team has been notified and will contact them soon. The customer just sent "
+        "a follow-up message. Reply warmly and helpfully, answering their question if you can "
+        "based on what they've told us so far. If you don't have enough information to answer "
+        "confidently (e.g. pricing, exact timing), let them know the sales team will confirm "
+        "those details shortly rather than guessing.\n\n"
+        f"Customer's new message: \"{message_text}\""
+    )
+            reply_text = generate_text(ongoing_reply_prompt)
+            print("--- BOT REPLY (would be sent via WhatsApp) ---")
+            print(reply_text)
+            return
+
+
+def handle_sales_reply(sender_phone: str,message_text:str,message_id:str):
+    if has_processed_message(message_id):
+        return
+    mark_message_processed(message_id)
+    
+    if not message_text.strip().upper().startswith("TAKEN"):
+        return
+    
+    message = message_text.strip()
+    part = message.split()
+    try:
+        customer_phone = part[1]
+    except IndexError:
+        return
+    active_lead = get_active_lead(phone=customer_phone)
+    if active_lead is None:
+        print(f"No active lead is found for {customer_phone}- nothing to assign")
+        return
+    
+    update_lead_status(lead_id=active_lead.lead_id,new_status=LeadStatus.HUMAN_ASSIGNED)
+    print("WHATSAPP MESSAGE")
+    print(f"{customer_phone} is assgined to {sender_phone}....")
+
+
+
+
+
+
 
 
 
 
 if __name__ == "__main__":
-    result = get_all_leads_by_phone("911111111111")
-    print(result)
+    create_tables()
+
+    print("=== Setup: create an active lead to assign ===")
+    handle_incoming_message(
+        phone="944444444444",
+        message_text="Hi, I'm Sneha, I need deep cleaning for my 3BHK in New Town.",
+        message_id="wamid.TESTS001"
+    )
+
+    print("\n=== Test A: sales replies TAKEN <valid phone> — should assign to human ===")
+    handle_sales_reply(
+        sender_phone="919000000000",  # sales team's own number
+        message_text="TAKEN 944444444444",
+        message_id="wamid.TESTS002"
+    )
+    active = get_active_lead("944444444444")
+    print(f"Lead status after assignment: {active.status} (should be human_assigned)")
+    assert active.status == LeadStatus.HUMAN_ASSIGNED
+    print("PASSED\n")
+
+    print("=== Test B: sales replies TAKEN <phone with no active lead> — should not crash ===")
+    handle_sales_reply(
+        sender_phone="919000000000",
+        message_text="TAKEN 999999999999",
+        message_id="wamid.TESTS003"
+    )
+    print("PASSED (no crash, printed 'no active lead' message above)\n")
+
+    print("=== Test C: sales replies just TAKEN with nothing after it — should not crash ===")
+    handle_sales_reply(
+        sender_phone="919000000000",
+        message_text="TAKEN",
+        message_id="wamid.TESTS004"
+    )
+    print("PASSED (no crash, nothing printed above)\n")
+
+    print("=== Test D: customer messages after HUMAN_ASSIGNED — bot should stay silent ===")
+    handle_incoming_message(
+        phone="944444444444",
+        message_text="Hello? Anyone there?",
+        message_id="wamid.TESTS005"
+    )
+    print("(nothing above this line should have printed for Test D)\n")
+
+    print("All handle_sales_reply tests passed.")
+
+
+
+
+
+
+# if __name__ == "__main__":
 #     create_tables()
+
 #     print("=== Test 1: clear requirement — should create a lead ===")
 #     handle_incoming_message(
-#         phone="911111111111",
+#         phone="933333333333",
 #         message_text="Hi, I'm Ayan, I need a CCTV installation near Baguiati for my basement.",
-#         message_id="wamid.TEST001"
+#         message_id="wamid.TESTA001"
 #     )
 
-#     print("\n=== Test 2: vague message — should NOT create a lead, just reply ===")
+#     print("\n=== Test 2: follow-up message on the SAME phone — should trigger BOT_ENGAGED reply ===")
 #     handle_incoming_message(
-#         phone="922222222222",
-#         message_text="Hi",
-#         message_id="wamid.TEST002"
+#         phone="933333333333",
+#         message_text="How much would that roughly cost?",
+#         message_id="wamid.TESTA002"
 #     )
-#     # confirm no lead was created for this number
-#     from app.db.local_store import get_lead_by_phone
-#     result = get_lead_by_phone("922222222222")
-#     print(f"Lead created for vague message? {result is not None} (should be False)")
 
-#     print("\n=== Test 3: duplicate message ID — should do nothing at all ===")
+#     print("\n=== Test 3: same phone, but simulate HUMAN_ASSIGNED — should stay silent ===")
+#     from app.db.local_store import get_all_leads_by_phone
+#     leads = get_all_leads_by_phone("933333333333")
+#     update_lead_status(lead_id=leads[0].lead_id, new_status=LeadStatus.HUMAN_ASSIGNED)
 #     handle_incoming_message(
-#         phone="911111111111",
-#         message_text="Hi, I'm Ayan, I need a CCTV installation near Baguiati for my basement.",
-#         message_id="wamid.TEST00"  # same ID as Test 1
+#         phone="933333333333",
+#         message_text="Are you still there?",
+#         message_id="wamid.TESTA003"
 #     )
 #     print("(nothing above this line should have printed for Test 3)")
+
+

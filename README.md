@@ -15,6 +15,7 @@ _-create a seperate ".env" file with the secret values to be used_
 **-->Operations of different functions of files<--**
 
 ●app/db/local_store.py
+
     get_connection()
 
         ----establishes connection with the sql database

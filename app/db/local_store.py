@@ -82,6 +82,14 @@ def get_all_leads_by_phone(phone: str) -> list[Lead]:
             created_at=datetime.fromisoformat(row["created_at"]),
         ))
     return leads
+
+def get_active_lead(phone: str) -> Lead | None:
+    all_leads = get_all_leads_by_phone(phone)
+    for lead in all_leads:
+        if lead.status != LeadStatus.CLOSED:
+            return lead
+    return None
+
     
 def update_lead_status(lead_id:int,new_status :LeadStatus):
     conn = get_connection()
@@ -160,11 +168,5 @@ def count_opt_in_sends_today()->int:
     return row['count']
 
 
-def get_active_lead(phone: str) -> Lead | None:
-    all_leads = get_all_leads_by_phone(phone)
-    for lead in all_leads:
-        if lead.status != LeadStatus.CLOSED:
-            return lead
-    return None
 
 create_tables()

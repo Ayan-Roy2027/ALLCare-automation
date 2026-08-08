@@ -28,4 +28,11 @@ _-create a seperate ".env" file with the secret values to be used_
     get_all_leads_by_phone()
         ----fetches records of all leads open or closed by a specific phone number
     
+    get_active_lead()
+        ----fetches the active leads of a phone number only
+    
+    update_lead_status()
+        ----updates lead status to required value listed in LeadStatus classs
+
+    
     

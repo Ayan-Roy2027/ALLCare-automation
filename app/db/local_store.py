@@ -148,3 +148,23 @@ def has_processed_message(message_id: str)->bool:
     return row is not None
 
 
+def count_opt_in_sends_today()->int:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT COUNT(*) as count FROM opt_in_status
+        WHERE date(last_updated) = date('now')
+    """)
+    row = cursor.fetchone()
+    conn.close()
+    return row['count']
+
+
+def get_active_lead(phone: str) -> Lead | None:
+    all_leads = get_all_leads_by_phone(phone)
+    for lead in all_leads:
+        if lead.status != LeadStatus.CLOSED:
+            return lead
+    return None
+
+create_tables()

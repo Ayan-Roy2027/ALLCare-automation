@@ -18,22 +18,23 @@ def clean_db():
 def test_insert_and_get_lead():
     lead = Lead(phone="911111111111", name="Test User", category="IT Support")
     local_store.insert_lead(lead)
-    fetched = local_store.get_lead_by_phone("911111111111")
+
+    fetched = local_store.get_active_lead("911111111111")
     assert fetched is not None
     assert fetched.name == "Test User"
     assert fetched.status == LeadStatus.NEW
 
 
 def test_get_lead_returns_none_if_missing():
-    result = local_store.get_lead_by_phone("999999999999")
+    result = local_store.get_active_lead("911111111111")
     assert result is None
 
 
 def test_update_lead_status():
     lead = Lead(phone="911111111111", name="Test User")
-    local_store.insert_lead(lead)
-    local_store.update_lead_status("911111111111", LeadStatus.HUMAN_ASSIGNED)
-    updated = local_store.get_lead_by_phone("911111111111")
+    inserted = local_store.insert_lead(lead)
+    local_store.update_lead_status(inserted.lead_id, LeadStatus.HUMAN_ASSIGNED)
+    updated = local_store.get_active_lead("911111111111")
     assert updated.status == LeadStatus.HUMAN_ASSIGNED
 
 

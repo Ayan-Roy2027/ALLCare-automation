@@ -17,13 +17,15 @@ _-create a seperate ".env" file with the secret values to be used_
 ●app/db/local_store.py
 
     get_connection()
-
         ----establishes connection with the sql database
     
-
     create_tables()
-
         ----creates the sqlite database if not exisits
 
     insert_lead()
         ----inserts a new lead with Lead as the class and lead_id as primary key
+
+    get_all_leads_by_phone()
+        ----fetches records of all leads open or closed by a specific phone number
+    
+    

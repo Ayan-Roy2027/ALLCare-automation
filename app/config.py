@@ -5,26 +5,17 @@ env_path = Path(__file__).resolve().parent.parent/".env"
 load_dotenv(dotenv_path=env_path)
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
-WHATSAPP_PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID")
-WHATSAPP_BUSINESS_ACCOUNT_ID = os.getenv("WHATSAPP_BUSINESS_ACCOUNT_ID")
-RECIPIENT_NUMBER = os.getenv("TEST_RECIPIENT_NUMBER")
-SALES_TEAM_NUMBER = os.getenv('SALES_TEAM_NUMBER')
-WHATSAPP_VERIFY_TOKEN = os.getenv('WHATSAPP_VERIFY_TOKEN')
+GBP_CLIENT_SECRET_FILE = os.getenv("GBP_CLIENT_SECRET_FILE")
+GBP_TOKEN_FILE = os.getenv("GBP_TOKEN_FILE")
 
 
 if not GEMINI_API_KEY or GEMINI_API_KEY == 'your api key here':
     raise RuntimeError("There is no gemini api key given....")
 
-if not WHATSAPP_TOKEN:
-    raise RuntimeError("Error, no whatsapp token is given....")
-if not WHATSAPP_BUSINESS_ACCOUNT_ID:
-    raise RuntimeError("Error, no whatsapp business account id....")
-if not RECIPIENT_NUMBER:
-    raise RuntimeError('Error, no recipient number given....')
-if not WHATSAPP_PHONE_NUMBER_ID:
-    raise ValueError("Error, whatsapp phone number ID is not given...")
-if not SALES_TEAM_NUMBER:
-    raise ValueError("Error, no sales team number detected....")
-if not WHATSAPP_VERIFY_TOKEN:
-    raise ValueError("Error, no whatsapp verify token detected....")
+if not GBP_CLIENT_SECRET_FILE:
+    raise RuntimeError("GBP_CLIENT_SECRET_FILE is not set in .env")
+GBP_CLIENT_SECRET_FILE = Path(GBP_CLIENT_SECRET_FILE)
+
+if not GBP_TOKEN_FILE:
+    raise RuntimeError("GBP_TOKEN_FILE is not set in .env")
+GBP_TOKEN_FILE = Path(GBP_TOKEN_FILE)

@@ -3,3 +3,5 @@ venv/
 __pycache__/
 *.pyc
 credentials/
+client_secret_833190832222-l6n0n5l01egbjslrfdvhid5mh6u17b99.apps.googleusercontent.com.json
+gbp_token.json

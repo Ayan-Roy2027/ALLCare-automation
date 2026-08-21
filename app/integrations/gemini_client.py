@@ -68,3 +68,32 @@ def generate_json(prompt:str)->dict:
 
 
 
+def generate_review_reply(reviewer_name:str,rating:str,review_text:str) -> str:
+    prompt = f"""
+You are replying on behalf of Allcare Corporation, a leading security system and IT infrastructure supplier based in Kolkata, to a customer review on their Google Business Profile.
+
+Review Details:
+
+Reviewer Name: {reviewer_name}
+
+Star Rating: {rating}
+
+Review Text: "{review_text}"
+
+Instructions:
+
+Write a short, warm, and professional reply (2–4 sentences).
+
+Address the reviewer by name.
+
+If positive (4–5 stars): Thank them genuinely, reference what they mentioned if applicable, and naturally incorporate 1–2 subtle local SEO terms (e.g., "CCTV installation in Kolkata," "IT infrastructure solutions," "security system supplier in West Bengal," or "Kolkata tech support").
+
+If negative or critical (1–3 stars): Acknowledge their concern sincerely without getting defensive or making excuses, mention our commitment to top-tier security and IT services in Kolkata, and invite them to reach out directly to make things right.
+
+Do not invent fictional details (names, dates, prices) not found in the review.
+
+Output ONLY the raw response text — no preamble, no meta-commentary, and no surrounding quotation marks.
+"""
+    return generate_text(prompt)
+
+

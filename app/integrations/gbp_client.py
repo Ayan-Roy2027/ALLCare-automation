@@ -77,6 +77,32 @@ def list_reviews(account_location: str) -> list[dict]:
 
     return result.get("reviews", [])
 
+def get_unreplied_reviews(account_location: str) -> list[dict]:
+    all_reviews = list_reviews(account_location)
+    return [r for r in all_reviews if "reviewReply" not in r]
+
+
+def reply_to_review(review_name: str, reply_text: str) -> dict:
+    """
+    review_name: the full 'name' field from a review object,
+    e.g. 'accounts/{id}/locations/{id}/reviews/{review_id}'
+    """
+    creds = get_credentials()
+    service = build(
+        "mybusiness", "v4",
+        credentials=creds,
+        static_discovery=False,
+        discoveryServiceUrl="https://developers.google.com/my-business/samples/mybusiness_google_rest_v4p9.json",
+    )
+
+    result = service.accounts().locations().reviews().updateReply(
+        name=review_name,
+        body={"comment": reply_text}
+    ).execute()
+
+    return result
+
+
 if __name__ == "__main__":
     creds = get_credentials()
     print("Auth OK, token valid:", creds.valid)
@@ -87,8 +113,9 @@ if __name__ == "__main__":
 
     account_location = "accounts/117897107069643471601/locations/5159737380424683697"
 
-    posts = list_local_posts(account_location)
-    print("POSTS:", posts)
 
-    reviews = list_reviews(account_location)
-    print("REVIEWS:", reviews)
+    import json
+    unreplied = get_unreplied_reviews(account_location)
+    if unreplied:
+        print(json.dumps(unreplied[0], indent=2))
+    unreplied = get_unreplied_reviews(account_location)

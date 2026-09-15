@@ -102,6 +102,36 @@ def reply_to_review(review_name: str, reply_text: str) -> dict:
 
     return result
 
+def create_local_post(account_location: str, summary: str, photo_url: str = None) -> dict:
+    """
+    account_location format: 'accounts/{account_id}/locations/{location_id}'
+    photo_url: public URL of an image, or None for a text-only post
+    """
+    creds = get_credentials()
+    service = build(
+        "mybusiness", "v4",
+        credentials=creds,
+        static_discovery=False,
+        discoveryServiceUrl="https://developers.google.com/my-business/samples/mybusiness_google_rest_v4p9.json",
+    )
+
+    post_body = {
+        "languageCode": "en",
+        "summary": summary,
+        "topicType": "STANDARD",
+    }
+
+    if photo_url:
+        post_body["media"] = [
+            {"mediaFormat": "PHOTO", "sourceUrl": photo_url}
+        ]
+
+    result = service.accounts().locations().localPosts().create(
+        parent=account_location,
+        body=post_body,
+    ).execute()
+
+    return result
 
 if __name__ == "__main__":
     creds = get_credentials()

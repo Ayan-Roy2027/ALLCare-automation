@@ -89,7 +89,6 @@ def get_active_lead(phone: str) -> Lead | None:
         if lead.status != LeadStatus.CLOSED:
             return lead
     return None
-
     
 def update_lead_status(lead_id:int,new_status :LeadStatus):
     conn = get_connection()

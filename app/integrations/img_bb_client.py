@@ -20,8 +20,5 @@ def upload_image_and_get_url(local_filename: str) -> str:
 
     return response.json()["data"]["url"]
 
-
 if __name__ == "__main__":
-    # confirm you have a real generated image sitting around first
-    url = upload_image_and_get_url("teest.png")
-    print("Uploaded:", url)
+    print(upload_image_and_get_url(local_filename='logo.png'))

@@ -64,21 +64,21 @@ def post_daily_content(account_location: str):
     caption = generate_post_caption(services=SERVICES, pincodes=SERVICE_PINCODES)
     print(f"Generated caption: {caption}")
 
-    # local_filename = generate_picture(
-    #     f"Professional photo representing {SERVICES} services for an IT infrastructure"
-    #     f"and security systems company in Kolkata, India. Realistic , the name of the company is ALL CARE CORPORATION."
-    #     f"Make it look treat to eyes, also mention the company name in the photo..."
-    # )
-    # print(f"Generated image: {local_filename}")
+    local_filename = generate_picture(
+        f"Professional photo representing {SERVICES} services for an IT infrastructure"
+        f"and security systems company in Kolkata, India. Realistic , the name of the company is ALL CARE CORPORATION."
+        f"Make it look treat to eyes, also mention the company name in the photo..."
+    )
+    print(f"Generated image: {local_filename}")
 
     if DRY_RUN:
         print("DRY RUN — not posting. Caption and image ready above for review.")
         return
 
-    photo_url = upload_image_and_get_url("teest.png")
+    photo_url = upload_image_and_get_url(local_filename)
     result = create_local_post(account_location, caption,photo_url)
     print("Posted:", result.get("name"))
 
-if __name__ == "__main__":
-    account_location = "accounts/117897107069643471601/locations/5159737380424683697"
-    post_daily_content(account_location)
+
+
+account_location = "accounts/117897107069643471601/locations/5159737380424683697"

@@ -18,7 +18,8 @@ from app.integrations.facebook_client import post_photo as post_to_facebook
 from app.integrations.instagram_client import post_photo as post_to_instagram
 from app.services.seo_audit import run_seo_audit
 
-DRY_RUN = True  
+DRY_RUN = False
+  
 
 ACCOUNT_LOCATION = "accounts/117897107069643471601/locations/5159737380424683697"
 LOCATION_NAME = "locations/5159737380424683697"

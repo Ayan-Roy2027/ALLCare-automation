@@ -7,18 +7,19 @@ from google.genai import types
 from PIL import Image
 from io import BytesIO
 import base64
+import random
 
 
 _client = genai.Client(api_key=GEMINI_API_KEY)
+
+logo_img = Image.open("logo.png")
 
 logger =  logging.getLogger(__name__)
 
 MODEL_NAME = 'gemini-3.6-flash'
 
-logo = "logo.png"
 
-with open(logo, "rb") as f:
-        image_b64 = base64.b64encode(f.read()).decode()
+
 SERVICES = [
     "Tally Installation",
     "Printers and Scanner Installation",
@@ -65,8 +66,13 @@ SERVICE_PINCODES = [
     "743286", "743287", "743288", "743289", "743290", "743291", "743292", "743293", "743294", "743295"
 ]
 
-pic_prompt = f"""
-Square 1:1 commercial marketing poster for "ALL CARE CORPORATION". Logo = {image_b64}.
+def random_service(services=SERVICES):
+    service = random.choice(SERVICES)
+    return service
+
+
+pic_prompt1 = f"""
+Square 1:1 commercial marketing poster for "ALL CARE CORPORATION". Logo is attached .
 VISUALS: A sleek tech desk in a polished server room with a softly blurred corporate office background. On the desk, display ultra-realistic 3D IT hardware: a laptop (showing Tally software), enterprise WiFi router, biometric reader, dome CCTV camera, multi-function printer, tower server with dual monitors, smoke detector, digital desk phone, and a UPS unit. 
 STYLING: Professional corporate blue, crisp white, and dark metallic grey accents. Photorealistic studio lighting, sharp detail, high-resolution flyer quality.
 TEXT OVERLAY: (Clean, high-contrast, professional typography)
@@ -76,6 +82,18 @@ TEXT OVERLAY: (Clean, high-contrast, professional typography)
 - CTA: Upgrade & Secure Your Business Infrastructure Today!
 - Footer: Call Us: +91 98362 13939 | Website: https://allcareitinfra.com/
 """
+
+def pic_prompt2(service:str): 
+    prompt_text = f"""
+    Square 1:1 commercial marketing poster for "ALL CARE CORPORATION". Logo is attached .
+    generate a promotional commercial for the service : {service} dont invent fictional details like price etc..
+    - Header: ALL CARE CORPORATION - Your Trusted IT & Automation Partner
+    - Main Title: IT Infra & Automation Solutions
+    - Services (2-column grid with realistic icons):
+    - CTA: Upgrade Your Infrastructure Today!
+    - Footer: Call Us: +91 98362 13939 | Website: https://allcareitinfra.com/
+    """
+    return prompt_text
 
 def generate_text(prompt:str)-> str:
     """
@@ -170,7 +188,7 @@ Output ONLY the raw response text — no preamble, no meta-commentary, and no su
 
 
 
-def generate_post_caption(services=SERVICES, pincodes= SERVICE_PINCODES) -> str:
+def generate_post_caption1(services=SERVICES, pincodes= SERVICE_PINCODES) -> str:
 
     prompt = f"""
 You are writing a short Google Business Profile post for Allcare Corporation, a security
@@ -191,6 +209,29 @@ Write a short, engaging post caption (5-10 sentences, under 2000 characters).
 """
     return generate_text(prompt)
 
+def generate_post_caption2(service:str,pincodes= SERVICE_PINCODES) -> str:
+
+    prompt = f"""
+You are writing a short Google Business Profile post for Allcare Corporation, a security
+system and IT infrastructure supplier based in Kolkata, West Bengal.
+
+Today's service focus: {service}
+Service-area pincodes to reference naturally (do not list all of them, just weave in 1-2
+relevant ones if it reads naturally, otherwise mention "West Bengal" generally): {pincodes}
+also try to add near me keywords from random 5 pincode area names
+
+Write a short, engaging post caption (5-10 sentences, under 2000 characters).
+- first give the problem which people face by not having the {service} selected installed
+- then give them how the selected {service} solves their problem and why they should buy it
+- Naturally mention relevant local SEO terms (Kolkata, West Bengal, the specific service).
+- End with 3-5 relevant hashtags combining the service and location
+   — do not claim they are "trending",
+  just make them specific and locally relevant.
+- Don't invent specific offers, prices, or claims not given to you.
+- Output ONLY the caption text, no preamble, no quotation marks.
+"""
+    return generate_text(prompt)
+
 
 def generate_picture(prompt: str):
     """Send prompt to Gemini, save the generated image, return its filename."""
@@ -200,7 +241,7 @@ def generate_picture(prompt: str):
     client = genai.Client()
     response = client.models.generate_content(
         model="gemini-3.1-flash-lite-image",
-        contents=[prompt],
+        contents=[prompt,logo_img],
     )
 
     for part in response.candidates[0].content.parts:
@@ -214,4 +255,5 @@ def generate_picture(prompt: str):
 
 
 if __name__ == "__main__":
-    generate_picture(prompt=pic_prompt)
+    service = random_service()
+    print(generate_post_caption2(service=service))
